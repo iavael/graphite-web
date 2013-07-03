@@ -2,35 +2,36 @@ import os
 import fnmatch
 from os.path import islink, isdir, isfile, realpath, join, dirname, basename
 from glob import glob
-from ceres import CeresTree, CeresNode, setDefaultSliceCachingBehavior
 from graphite.node import BranchNode, LeafNode
 from graphite.readers import CeresReader, WhisperReader, GzippedWhisperReader, RRDReader
 from graphite.util import find_escaped_pattern_fields
 
 from graphite.logger import log
 
-#setDefaultSliceCachingBehavior('all')
-
 
 class CeresFinder:
   def __init__(self, directory):
-    self.directory = directory
-    self.tree = CeresTree(directory)
+    if CeresReader.supported:
+      from ceres import CeresTree, CeresNode, setDefaultSliceCachingBehavior
+      #setDefaultSliceCachingBehavior('all')
+      self.directory = directory
+      self.tree = CeresTree(directory)
 
   def find_nodes(self, query):
-    for fs_path in glob( self.tree.getFilesystemPath(query.pattern) ):
-      metric_path = self.tree.getNodePath(fs_path)
+    if CeresReader.supported:
+      for fs_path in glob( self.tree.getFilesystemPath(query.pattern) ):
+        metric_path = self.tree.getNodePath(fs_path)
 
-      if CeresNode.isNodeDir(fs_path):
-        ceres_node = self.tree.getNode(metric_path)
+        if CeresNode.isNodeDir(fs_path):
+          ceres_node = self.tree.getNode(metric_path)
 
-        if ceres_node.hasDataForInterval(query.startTime, query.endTime):
-          real_metric_path = get_real_metric_path(fs_path, metric_path)
-          reader = CeresReader(ceres_node, real_metric_path)
-          yield LeafNode(metric_path, reader)
+          if ceres_node.hasDataForInterval(query.startTime, query.endTime):
+            real_metric_path = get_real_metric_path(fs_path, metric_path)
+            reader = CeresReader(ceres_node, real_metric_path)
+            yield LeafNode(metric_path, reader)
 
-      elif isdir(fs_path):
-        yield BranchNode(metric_path)
+        elif isdir(fs_path):
+          yield BranchNode(metric_path)
 
 
 class StandardFinder:
