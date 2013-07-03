@@ -1,13 +1,57 @@
 import os
 import fnmatch
+import urlparse, operator
 from os.path import islink, isdir, isfile, realpath, join, dirname, basename
 from glob import glob
 from graphite.node import BranchNode, LeafNode
-from graphite.readers import CeresReader, WhisperReader, GzippedWhisperReader, RRDReader
+from graphite.readers import ZabbixRpcReader, ZabbixDbReader, CeresReader, WhisperReader, GzippedWhisperReader, RRDReader
 from graphite.util import find_escaped_pattern_fields
 
 from graphite.logger import log
 
+class ZabbixCommonFinder:
+  def __init__(self,**kwargs):
+    pass
+  def find_nodes(self,query):
+    pass
+
+class ZabbixRpcFinder(ZabbixCommonFinder):
+  def __init__(self, **kwargs):
+    if ZabbixRpcReader.supported:
+      zbxuri = urlparse.urlsplit(kwargs['zbxrpcuri'])
+      print kwargs['zbxrpcuri'], kwargs['zbxrpcuser'], kwargs['zbxrpcpass']
+
+class ZabbixDbFinder(ZabbixCommonFinder):
+  def __init__(self, **kwargs):
+    if ZabbixDbReader.supported:
+      dburi = urlparse.urlsplit(kwargs['zbxdburi'])
+      if reduce(operator.__and__, map( lambda x: bool(getattr(dburi, x)), ['scheme','hostname','username','password','path'] ), True):
+        if dburi.scheme in ['postgresql', 'mysql']:
+          self.dbconn = getattr(self, "_" + dburi.scheme)(database = dburi.path.split('/')[1],
+            username = dburi.username, password = dburi.password,
+            hostname = dburi.hostname, port = dburi.port)
+     
+  def _postgresql(self, **kwargs):
+    try:
+      import psycopg2
+      import psycopg2.extensions
+    except ImportError, e:
+      from django.core.exceptions import ImproperlyConfigured
+      raise ImproperlyConfigured("Error loading psycopg2 module: %s" % e)
+    return psycopg2.connect(database = kwargs['database'],
+      user = kwargs['username'], password = kwargs['password'],
+      host = kwargs['hostname'], port = 5432 if not kwargs['port'] else kwargs['port'])
+
+  def _mysql(self,**kwargs):
+    try:
+      import MySQLdb
+    except ImportError, e:
+      from django.core.exceptions import ImproperlyConfigured
+      raise ImproperlyConfigured("Error loading MySQLdb module: %s" % e)
+    return MySQLdb.connect(db = kwargs['database'], 
+      user = kwargs['username'], passwd = kwargs['password'],
+      host = kwargs['hostname'], port = 3306 if not kwargs['port'] else kwargs['port'],
+      charset='utf8')
 
 class CeresFinder:
   def __init__(self, directory):

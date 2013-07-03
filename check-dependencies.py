@@ -26,6 +26,23 @@ except ImportError:
   sys.stderr.write("[OPTIONAL] Unable to import the 'ceres' modules. Without it the webapp will be unable to read contents of ceres storage\n")
   optional += 1
 
+try:
+  import zabbix_api
+except ImportError:
+  sys.stderr.write("[OPTIONAL] Unable to import the 'zabbix-api' module. Without it the webapp will be unable to retrieve zabbix data via JSON-RPC API\n")
+  optional += 1
+
+try:
+  import psycopg2
+except ImportError:
+  sys.stderr.write("[OPTIONAL] Unable to import the 'psycopg2' module. Without it the webapp will be unable to retrieve zabbix data from postgres DB\n")
+  optional += 1
+
+try:
+  import MySQLdb
+except ImportError:
+  sys.stderr.write("[OPTIONAL] Unable to import the 'MySQLdb' module. Without it the webapp will be unable to retrieve zabbix data from mysql DB\n")
+  optional += 1
 
 # Test for pycairo
 try:

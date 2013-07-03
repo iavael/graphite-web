@@ -67,6 +67,10 @@
 #CERES_DIR = '/opt/graphite/storage/ceres'
 #WHISPER_DIR = '/opt/graphite/storage/whisper'
 #RRD_DIR = '/opt/graphite/storage/rrd'
+#ZBXRPC_URI = 'http://httpuser:httppass@localhost/zabbix/'
+#ZBXRPC_USER = 'zbxuser'
+#ZBXRPC_PASS = 'zbxpass'
+#ZBXDB_URI = 'postgresql://dbuser:dbpass@localhost:5432/zabbix'
 # Data directories using the "Standard" finder (i.e. not Ceres)
 #STANDARD_DIRS = [WHISPER_DIR, RRD_DIR] # Default: set from the above variables
 #LOG_DIR = '/opt/graphite/storage/log/webapp'

@@ -21,6 +21,25 @@ else:
   whisper = True
 
 try:
+  import zabbix_api
+except ImportError:
+  zabbixrpc = False
+else:
+  zabbixrpc = True
+
+try:
+  import psycopg2
+except ImportError:
+  try:
+    import MySQLdb
+  except:
+    zabbixdb = False
+  else:
+    zabbixdb = True
+else:
+  zabbixdb = True
+
+try:
   import rrdtool
 except ImportError:
   rrdtool = False
@@ -196,6 +215,11 @@ class WhisperReader(object):
 
     return (time_info, values)
 
+class ZabbixRpcReader(object):
+  supported = bool(zabbixrpc)
+
+class ZabbixDbReader(object):
+  supported = bool(zabbixdb)
 
 class GzippedWhisperReader(WhisperReader):
   supported = bool(whisper and gzip)

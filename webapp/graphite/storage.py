@@ -6,7 +6,7 @@ from graphite.remote_storage import RemoteStore
 from graphite.node import LeafNode
 from graphite.intervals import Interval, IntervalSet
 from graphite.readers import MultiReader
-from graphite.finders import CeresFinder, StandardFinder
+from graphite.finders import ZabbixRpcFinder, ZabbixDbFinder, CeresFinder, StandardFinder
 
 
 class Store:
@@ -150,5 +150,9 @@ class FindQuery:
 finders = [
   CeresFinder(settings.CERES_DIR),
   StandardFinder(settings.STANDARD_DIRS),
+  ZabbixDbFinder(zbxdburi = settings.ZBXDB_URI),
+  ZabbixRpcFinder(zbxrpcuri = settings.ZBXRPC_URI,
+    zbxrpcuser = settings.ZBXRPC_USER,
+    zbxrpcpass = settings.ZBXRPC_PASS)
 ]
 STORE = Store(finders, hosts=settings.CLUSTER_SERVERS)
