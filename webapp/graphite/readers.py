@@ -7,19 +7,32 @@ from graphite.logger import log
 from django.conf import settings
 
 try:
+  import ceres
+except ImportError:
+  ceres = False
+else:
+  ceres = True
+
+try:
   import whisper
 except ImportError:
   whisper = False
+else:
+  whisper = True
 
 try:
   import rrdtool
 except ImportError:
   rrdtool = False
+else:
+  rrdtool = True
 
 try:
   import gzip
 except ImportError:
   gzip = False
+else:
+  gzip = True
 
 
 class FetchInProgress(object):
@@ -106,7 +119,7 @@ class MultiReader(object):
 
 class CeresReader(object):
   __slots__ = ('ceres_node', 'real_metric_path')
-  supported = True
+  supported = bool(ceres)
 
   def __init__(self, ceres_node, real_metric_path):
     self.ceres_node = ceres_node

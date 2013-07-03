@@ -17,15 +17,14 @@ optional = 0
 try:
   import whisper
 except ImportError:
-  # No? test for ceres
-  try:
-    import ceres
-    # We imported ceres, but not whisper so it's an optional dependency
-    sys.stderr.write("[OPTIONAL] Unable to import the 'whisper' module. Without it the webapp will be unable to read .wsp files\n")
-    optional += 1
-  except ImportError:
-    sys.stderr.write("[REQUIRED] Unable to import the 'whisper' or 'ceres' modules, please download this package from the Graphite project page and install it.\n")
-    required += 1
+  sys.stderr.write("[OPTIONAL] Unable to import the 'whisper' module. Without it the webapp will be unable to read .wsp files\n")
+  optional += 1
+
+try:
+  import ceres
+except ImportError:
+  sys.stderr.write("[OPTIONAL] Unable to import the 'ceres' modules. Without it the webapp will be unable to read contents of ceres storage\n")
+  optional += 1
 
 
 # Test for pycairo or cairocffi
